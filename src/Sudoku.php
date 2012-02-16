@@ -17,49 +17,49 @@ class Sudoku
     {
         if (!is_null($matrix))
         {
-            for ($i = 0; $i < self::MAX_WIDTH; $i++)
+            for ($i = 0; $i < self::MAX_HEIGHT; $i++)
             {
-                for ($j = 0; $j < self::MAX_HEIGHT; $j++)
+                for ($j = 0; $j < self::MAX_WIDTH; $j++)
                 {
-                    if (isset($matrix[$i][$j]))
+                    if (isset($matrix[$j][$i]))
                     {
-                        if ($matrix[$i][$j] instanceof Field)
+                        if ($matrix[$j][$i] instanceof Field)
                         {
-                            $this->matrix[$i][$j] = $matrix[$i][$j];
+                            $this->matrix[$j][$i] = $matrix[$j][$i];
                         }
-                        else if (is_int($matrix[$i][$j]))
+                        else if (is_int($matrix[$j][$i]))
                         {
-                            $this->matrix[$i][$j] = new Field($matrix[$i][$j], false);
+                            $this->matrix[$j][$i] = new Field($matrix[$j][$i], false);
                         }
                         else
                         {
-                            $this->matrix[$i][$j] = new Field();
+                            $this->matrix[$j][$i] = new Field();
                         }
                     }
                     else
                     {
-                        $this->matrix[$i][$j] = new Field();
+                        $this->matrix[$j][$i] = new Field();
                     }
                 }
             }
         }
         else
         {
-            for ($i = 0; $i < self::MAX_WIDTH; $i++)
+            for ($i = 0; $i < self::MAX_HEIGHT; $i++)
             {
-                for ($j = 0; $j < self::MAX_HEIGHT; $j++)
+                for ($j = 0; $j < self::MAX_WIDTH; $j++)
                 {
-                    $this->matrix[$i][$j] = new Field();
+                    $this->matrix[$j][$i] = new Field();
                 }
             }
         }
     }
 
-    public function isSolve()
+    public function isSolved()
     {
-        for ($i = 0; $i < self::MAX_WIDTH; $i++)
+        for ($i = 0; $i < self::MAX_HEIGHT; $i++)
         {
-            for ($j = 0; $j < self::MAX_HEIGHT; $j++)
+            for ($j = 0; $j < self::MAX_WIDTH; $j++)
             {
                 if ($this->matrix[$i][$j]->getNumber() == null)
                 {
@@ -70,29 +70,29 @@ class Sudoku
 
         for ($i = 0; $i < self::MAX_WIDTH; $i++)
         {
-            $rowNumbers = array();
+            $colNumbers = array();
             for ($j = 0; $j < self::MAX_HEIGHT; $j++)
             {
-                if (in_array($this->matrix[$i][$j]->getNumber(), $rowNumbers))
+                if (in_array($this->matrix[$i][$j]->getNumber(), $colNumbers))
                 {
                     return false;
                 }
 
-                $rowNumbers[] = $this->matrix[$i][$j]->getNumber();
+                $colNumbers[] = $this->matrix[$i][$j]->getNumber();
             }
         }
 
         for ($i = 0; $i < self::MAX_HEIGHT; $i++)
         {
-            $colNumbers = array();
+            $rowNumbers = array();
             for ($j = 0; $j < self::MAX_WIDTH; $j++)
             {
-                if (in_array($this->matrix[$j][$i]->getNumber(), $colNumbers))
+                if (in_array($this->matrix[$j][$i]->getNumber(), $rowNumbers))
                 {
                     return false;
                 }
 
-                $colNumbers[] = $this->matrix[$j][$i]->getNumber();
+                $rowNumbers[] = $this->matrix[$j][$i]->getNumber();
             }
         }
 
@@ -106,12 +106,12 @@ class Sudoku
                 $squareNumbers = array();
                 for ($j = 0; $j < 3; $j++)
                 {
-                    if (in_array($this->matrix[$i + 3 * $ki][$j + 3 * $kj]->getNumber(), $squareNumbers))
+                    if (in_array($this->matrix[$j + 3 * $kj][$i + 3 * $ki]->getNumber(), $squareNumbers))
                     {
                         return false;
                     }
 
-                    $squareNumbers[] = $this->matrix[$i + 3 * $ki][$j + 3 * $kj]->getNumber();
+                    $squareNumbers[] = $this->matrix[$j + 3 * $kj][$i + 3 * $ki]->getNumber();
                 }
             }
         }
@@ -121,16 +121,128 @@ class Sudoku
 
     public function solveRecursive($x, $y)
     {
+        $final = false;
 
+        $nextX = ($x + 1) % self::MAX_WIDTH;
+
+        if ((($x + 1) / self::MAX_WIDTH) >= 1)
+        {
+            $nextY = $y + 1;
+            if (($nextY / self::MAX_WIDTH) >= 1)
+            {
+                $final = true;
+            }
+        }
+        else
+        {
+            $nextY = $y;
+        }
+
+        if ($this->matrix[$x][$y]->isChangeable())
+        {
+            $availableNumbers = $this->getAvailableNumbers($x, $y);
+            foreach ($availableNumbers as $number)
+            {
+                $this->matrix[$x][$y]->setNumber($number);
+                if (!$final)
+                {
+                    $result = $this->solveRecursive($nextX, $nextY);
+                    if ($result)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        $this->matrix[$x][$y]->setNumber(null);
+                    }
+                }
+                else
+                {
+                    $result =  $this->isSolved();
+                    if ($result)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        if (!$final)
+        {
+            return $this->solveRecursive($nextX, $nextY);
+        }
+        else
+        {
+            return $this->isSolved();
+        }
     }
 
     public function solve()
     {
-        $this->solveRecursive(0, 0);
+        return $this->solveRecursive(0, 0);
+    }
+
+    public function getAvailableNumbers($x, $y)
+    {
+        if (!$this->matrix[$x][$y]->isChangeable())
+        {
+            return array();
+        }
+
+        $availableNumbers = range(1, 9);
+
+        for ($i = 0; $i < self::MAX_WIDTH; $i++)
+        {
+            if ($i != $x)
+            {
+                $number = $this->matrix[$i][$y]->getNumber();
+                $key = array_search($number, $availableNumbers);
+                if ($key !== false)
+                {
+                    unset($availableNumbers[$key]);
+                }
+            }
+        }
+
+        for ($i = 0; $i < self::MAX_HEIGHT; $i++)
+        {
+            if ($i != $y)
+            {
+                $number = $this->matrix[$x][$i]->getNumber();
+                $key = array_search($number, $availableNumbers);
+                if ($key !== false)
+                {
+                    unset($availableNumbers[$key]);
+                }
+            }
+        }
+
+        $ki = floor($y / 3);
+        $kj = floor($x / 3);
+
+        for ($i = 0; $i < 3; $i++)
+        {
+            for ($j = 0; $j < 3; $j++)
+            {
+                if (($i + 3 * $ki != $y) && ($j + 3 * $kj != $x))
+                {
+                    $number = $this->matrix[$j + 3 * $kj][$i + 3 * $ki]->getNumber();
+                    $key = array_search($number, $availableNumbers);
+                    if ($key !== false)
+                    {
+                        unset($availableNumbers[$key]);
+                    }
+                }
+            }
+        }
+
+        return $availableNumbers;
     }
 
     public function getField($x, $y)
     {
-        return $this->matrix[$y][$x];
+        return $this->matrix[$x][$y];
     }
 }

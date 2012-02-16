@@ -24,7 +24,7 @@ class Field
 
         if ($this->isChangeable())
         {
-            return $number;
+            return (string)$number;
         }
         else
         {
