@@ -27,7 +27,7 @@ class Sudoku
                         {
                             $this->matrix[$j][$i] = $matrix[$j][$i];
                         }
-                        else if (is_int($matrix[$j][$i]))
+                        else if (($matrix[$j][$i]) > 0 && ($matrix[$j][$i] < 10))
                         {
                             $this->matrix[$j][$i] = new Field($matrix[$j][$i], false);
                         }
