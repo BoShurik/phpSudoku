@@ -158,7 +158,7 @@ class Sudoku
                 }
                 else
                 {
-                    $result =  $this->isSolved();
+                    $result = $this->isSolved();
                     if ($result)
                     {
                         return true;
@@ -206,6 +206,11 @@ class Sudoku
             }
         }
 
+        if (empty($availableNumbers))
+        {
+            return array();
+        }
+
         for ($i = 0; $i < self::MAX_HEIGHT; $i++)
         {
             if ($i != $y)
@@ -217,6 +222,11 @@ class Sudoku
                     unset($availableNumbers[$key]);
                 }
             }
+        }
+
+        if (empty($availableNumbers))
+        {
+            return array();
         }
 
         $ki = floor($y / 3);
