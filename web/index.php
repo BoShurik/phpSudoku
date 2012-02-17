@@ -17,13 +17,41 @@ function __autoload($className)
 
 function printSudoku(Sudoku $sudoku)
 {
-    $result = '<table width="270" border="1px">';
+    $result = '<table width="270">';
     for ($i = 0; $i < Sudoku::MAX_HEIGHT; $i++)
     {
         $result .= '<tr>';
         for ($j = 0; $j < Sudoku::MAX_WIDTH; $j++)
         {
-            $result .= '<td>'. $sudoku->getField($j, $i) .'</td>';
+            $style = '';
+            if (($i % 3) == 0)
+            {
+                $style .= 'border-top: 2px solid;';
+            }
+            else if ($i == Sudoku::MAX_HEIGHT - 1)
+            {
+                $style .= 'border-bottom: 2px solid;';
+            }
+            else if (($i % 3) == 1)
+            {
+                $style .= 'border-top: 1px dotted;';
+                $style .= 'border-bottom: 1px dotted;';
+            }
+
+            if (($j % 3) == 0)
+            {
+                $style .= 'border-left: 2px solid;';
+            }
+            else if ($j == Sudoku::MAX_WIDTH - 1)
+            {
+                $style .= 'border-right: 2px solid;';
+            }
+            else if (($j % 3) == 1)
+            {
+                $style .= 'border-left: 1px dotted;';
+                $style .= 'border-right: 1px dotted;';
+            }
+            $result .= '<td style="'. $style .'">'. $sudoku->getField($j, $i) .'</td>';
         }
         $result .= '</tr>';
     }
@@ -35,13 +63,32 @@ function printSudoku(Sudoku $sudoku)
 function printSudokuForm()
 {
     $result  = '<form action="" method="post">';
-    $result .= '<table width="270" border="1px">';
+    $result .= '<table width="270">';
     for ($i = 0; $i < Sudoku::MAX_HEIGHT; $i++)
     {
         $result .= '<tr>';
         for ($j = 0; $j < Sudoku::MAX_WIDTH; $j++)
         {
-            $result .= '<td><input style="width: 30px;" type="text" name="matrix['. $j .']['. $i .']" value="" maxlength="1"/></td>';
+            $style = '';
+            if (($i % 3) == 0)
+            {
+                $style .= 'border-top: 1px solid;';
+            }
+            else if ($i == Sudoku::MAX_HEIGHT - 1)
+            {
+                $style .= 'border-bottom: 1px solid;';
+            }
+
+            if (($j % 3) == 0)
+            {
+                $style .= 'border-left: 1px solid;';
+            }
+            else if ($j == Sudoku::MAX_WIDTH - 1)
+            {
+                $style .= 'border-right: 1px solid;';
+            }
+
+            $result .= '<td style="'. $style .'"><input style="width: 30px;" type="text" name="matrix['. $j .']['. $i .']" value="" maxlength="1"/></td>';
         }
         $result .= '</tr>';
     }
