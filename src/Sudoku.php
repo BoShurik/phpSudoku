@@ -119,7 +119,7 @@ class Sudoku
         return true;
     }
 
-    public function solveRecursive($x, $y)
+    private function solveRecursive($x, $y)
     {
         $final = false;
 
