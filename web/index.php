@@ -57,6 +57,17 @@ function printSudoku(Sudoku $sudoku)
     }
     $result .= '</table>';
 
+    $result .= "\n<!-- init string for cpp application\n";
+    for ($i = 0; $i < Sudoku::MAX_HEIGHT; $i++)
+    {
+        for ($j = 0; $j < Sudoku::MAX_WIDTH; $j++)
+        {
+            $number = $sudoku->getField($j, $i)->getNumber();
+            $result .= $number ? $number : 0;
+        }
+    }
+    $result .= "\n-->";
+
     return $result;
 }
 
